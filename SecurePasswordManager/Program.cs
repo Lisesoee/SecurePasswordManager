@@ -5,6 +5,7 @@ namespace SecurePasswordManager
 {
     class Program
     {
+        
         static void Main(string[] args)
         {
             RunSecurePasswordManager();
@@ -12,11 +13,67 @@ namespace SecurePasswordManager
 
         private static void RunSecurePasswordManager()
         {
-            string hash = Convert.ToBase64String(CreateHash("Test123"));
-            Console.WriteLine(hash);
+            bool userExists = false;
+
+            if (userExists == true)
+            {
+                if (Login() == true) {
+                    MainMenu();
+                }
+            }
+            else
+            {
+                CreateMasterPassword();
+            }
+ 
             
             throw new NotImplementedException();
 
+        }
+
+        private static void CreateMasterPassword()
+        {
+            Console.WriteLine("Please input a master password.");
+            string masterPasswordInput = Console.ReadLine();
+
+            throw new NotImplementedException();
+        }
+
+        private static bool Login()
+        {
+            throw new NotImplementedException();
+
+            bool forgotPassword = false;
+            if (forgotPassword == true)
+            {
+                //ResetMasterPassword();
+            }
+
+            return false;
+        }
+
+        private static void MainMenu()
+        {
+            throw new NotImplementedException();
+
+            // todo: create meny where user input specifies an action
+
+            AddNewPassword();
+            RetrievePassword();
+        }
+        
+
+        private static void RetrievePassword()
+        {
+            throw new NotImplementedException();
+        }
+
+        private static void AddNewPassword()
+        {
+            throw new NotImplementedException();
+
+            string hash = Convert.ToBase64String(CreateHash("Test123"));
+            Console.WriteLine(hash);
         }
 
         private static byte[] CreateHash(string input)
