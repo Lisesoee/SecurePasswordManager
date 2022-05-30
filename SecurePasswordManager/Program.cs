@@ -6,7 +6,7 @@ namespace SecurePasswordManager
     {
         static void Main(string[] args)
         {
-            Console.WriteLine("Hello World! This is a password manager!");
+            Console.WriteLine("Hello World!");
         }
     }
 }
