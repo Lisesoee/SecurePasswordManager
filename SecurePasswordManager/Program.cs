@@ -6,7 +6,12 @@ namespace SecurePasswordManager
     {
         static void Main(string[] args)
         {
-            Console.WriteLine("Hello World!");
+            RunSecurePasswordManager();
+        }
+
+        private static void RunSecurePasswordManager()
+        {
+            throw new NotImplementedException();
         }
     }
 }
