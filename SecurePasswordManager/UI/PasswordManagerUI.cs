@@ -121,7 +121,7 @@ namespace SecurePasswordManager.UI
         {
             // TODO: print list of available items
 
-            Console.WriteLine("Which item would you like to retrieve the password for?");
+            Console.WriteLine("Which item would you like to retrieve the password for?: ");
             string name = Console.ReadLine();
 
             PasswordManagerController.GetItem(name);
@@ -131,11 +131,11 @@ namespace SecurePasswordManager.UI
 
         private static void MenuOption_AddNewItem()
         {
-            Console.WriteLine("Please input a name:");
+            Console.WriteLine("Please input a name: ");
             string name = Console.ReadLine();
-            Console.WriteLine("Please input a username:");
+            Console.WriteLine("Please input a username: ");
             string username = Console.ReadLine();
-            Console.WriteLine("Please input a password:");
+            Console.WriteLine("Please input a password: ");
             string password = Console.ReadLine();
 
             PasswordManagerController.CreateNewItem(name, username, password);
