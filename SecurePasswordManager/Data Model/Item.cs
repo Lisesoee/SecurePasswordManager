@@ -6,14 +6,14 @@ using System.Threading.Tasks;
 
 namespace SecurePasswordManager.Classes
 {
-    internal class Item
+    internal class VaultItem
     {
         public int Id { get; set; }
         public string Name { get; set; }
         public string UserName { get; set; }
         public string Password { get; set; }
 
-        public Item(string name, string userName, string password)
+        public VaultItem(string name, string userName, string password)
         {
             Name = name ?? throw new ArgumentNullException(nameof(name));
             UserName = userName ?? throw new ArgumentNullException(nameof(userName));
