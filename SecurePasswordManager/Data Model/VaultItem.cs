@@ -20,5 +20,16 @@ namespace SecurePasswordManager.Classes
             Password = password ?? throw new ArgumentNullException(nameof(password));
             
         }
+        public VaultItem()
+        {
+            
+        }
+
+        public override string ToString()
+        {
+            return "Id: " + Id + ", Name: " + Name + ", Username: " + UserName + ", Password: " + Password;
+        }
+        
     }
 }
+

@@ -5,6 +5,9 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Security.Cryptography;
 using System.Data.SqlClient;
+using SecurePasswordManager.Classes;
+using System.Reflection;
+using System.Security;
 
 namespace SecurePasswordManager.Core
 {
@@ -29,55 +32,78 @@ namespace SecurePasswordManager.Core
             return pbkdf2.GetBytes(HASH_SIZE);
         }
 
-        internal static void GetItem(string name)
-        {
-            throw new NotImplementedException();
-        }
+        
 
         public static bool CreateNewUser(string userNameInput, string masterPasswordInput)
         {
             string masterPasswordHash = Convert.ToBase64String(PasswordManagerController.CreateHash(masterPasswordInput));
             using (SqlConnection cs = new SqlConnection(connectionString))
             {
-                try
-                {
-                    SqlCommand cmd = new SqlCommand("INSERT INTO MasterPassword (MasterPassword, UserName) values (@masterPasswordInput,@usernameinput)", cs);
-                    cmd.Parameters.AddWithValue("@usernameinput", userNameInput);
-                    cmd.Parameters.AddWithValue("@masterPasswordInput", masterPasswordHash);
-                    cs.Open();
-                    cmd.ExecuteNonQuery();
-                    cs.Close();
-                    return true;
-                }
-                catch (Exception e)
-                {
-                    //throw new Exception("Master Password could not be created.");
-                    return false;
-                }
+                
+                SqlCommand cmd = new SqlCommand("INSERT INTO MasterPassword (MasterPassword, UserName) values (@masterPasswordInput,@usernameinput)", cs);
+                cmd.Parameters.AddWithValue("@usernameinput", userNameInput);
+                cmd.Parameters.AddWithValue("@masterPasswordInput", masterPasswordHash);
+                cs.Open();
+                cmd.ExecuteNonQuery();
+                cs.Close();
+                return true;
+                
             }
         }
         public static bool CreateNewItem(string name, string username, string password)
         {
             using (SqlConnection cs = new SqlConnection(connectionString))
             {
-                try
-                {
-                    SqlCommand cmd = new SqlCommand("INSERT INTO VaultItem (Name, UserName, Password) values (@name,@username,@password)", cs);
-                    cmd.Parameters.AddWithValue("@name", name);
-                    cmd.Parameters.AddWithValue("@username", username);
-                    cmd.Parameters.AddWithValue("@password", password);
-                    cs.Open();
-                    cmd.ExecuteNonQuery();
-                    cs.Close();
-                    return true;
-                }
-                catch (Exception e)
-                {
-                    //throw new Exception("Vault Item could not be created.");
-                    return false;
-                }
+                SqlCommand cmd = new SqlCommand("INSERT INTO VaultItem (Name, UserName, Password) values (@name,@username,@password)", cs);
+                cmd.Parameters.AddWithValue("@name", name);
+                cmd.Parameters.AddWithValue("@username", username);
+                cmd.Parameters.AddWithValue("@password", password);
+                cs.Open();
+                cmd.ExecuteNonQuery();
+                cs.Close();
+                return true;               
             }
+        }
 
+        public static List<VaultItem> GetAllItems()
+        {
+            List<VaultItem> VaultItemList = new List<VaultItem>();
+
+            using (SqlConnection cs = new SqlConnection(connectionString))
+            {                
+                    SqlCommand cmd = new SqlCommand("SELECT * FROM VaultItem", cs);                    
+                    cs.Open();
+                    SqlDataReader sqlDataReader = cmd.ExecuteReader();
+                    VaultItemList = DataReaderMapToList<VaultItem>(sqlDataReader);
+                    cs.Close();           
+            }
+            return VaultItemList;
+        }
+
+        private static List<T> DataReaderMapToList<T>(SqlDataReader sqlDataReader)
+        {
+            List<T> list = new List<T>();
+            T obj = default(T);
+            while (sqlDataReader.Read())
+            {
+                obj = Activator.CreateInstance<T>();
+                foreach (PropertyInfo prop in obj.GetType().GetProperties())
+                {
+                    if (!object.Equals(sqlDataReader[prop.Name], DBNull.Value))
+                    {
+                        prop.SetValue(obj, sqlDataReader[prop.Name], null);
+                    }
+                }
+                list.Add(obj);
+            }
+            return list;
+        }
+
+        public static VaultItem GetItem(int idToRetrieve)
+        {
+            // decrypt
+            throw new NotImplementedException();
+            
         }
     }
 }
