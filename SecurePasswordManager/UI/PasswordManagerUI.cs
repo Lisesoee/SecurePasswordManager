@@ -117,8 +117,22 @@ namespace SecurePasswordManager.UI
 
         private static bool LoginMenuOption_Login()
         {
-            return true; // for testing
-            throw new NotImplementedException();
+            //return true; // for testing purposes
+
+            Console.WriteLine("\nPlease input user name:");
+            string userNameInput = Console.ReadLine();
+
+            Console.WriteLine("Please input master password:");
+            string masterPasswordInput = GetHiddenConsoleInput();
+
+            if (PasswordManagerController.AuthenticateUser(userNameInput, masterPasswordInput))
+            {
+                Console.WriteLine("Login successfull. Progressing to main menu..\n");
+                return true; 
+            }
+
+            Console.WriteLine("Login failed. Please try again..\n");
+            return false;
         }
 
 
