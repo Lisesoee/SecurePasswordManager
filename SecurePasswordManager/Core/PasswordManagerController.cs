@@ -7,6 +7,7 @@ using System.Security.Cryptography;
 using System.Data.SqlClient;
 using SecurePasswordManager.Classes;
 using System.Reflection;
+using System.Security;
 
 namespace SecurePasswordManager.Core
 {
@@ -38,21 +39,15 @@ namespace SecurePasswordManager.Core
             string masterPasswordHash = Convert.ToBase64String(PasswordManagerController.CreateHash(masterPasswordInput));
             using (SqlConnection cs = new SqlConnection(connectionString))
             {
-                try
-                {
-                    SqlCommand cmd = new SqlCommand("INSERT INTO MasterPassword (MasterPassword, UserName) values (@masterPasswordInput,@usernameinput)", cs);
-                    cmd.Parameters.AddWithValue("@usernameinput", userNameInput);
-                    cmd.Parameters.AddWithValue("@masterPasswordInput", masterPasswordHash);
-                    cs.Open();
-                    cmd.ExecuteNonQuery();
-                    cs.Close();
-                    return true;
-                }
-                catch (Exception e)
-                {
-                    //throw new Exception("Master Password could not be created.");
-                    return false;
-                }
+                
+                SqlCommand cmd = new SqlCommand("INSERT INTO MasterPassword (MasterPassword, UserName) values (@masterPasswordInput,@usernameinput)", cs);
+                cmd.Parameters.AddWithValue("@usernameinput", userNameInput);
+                cmd.Parameters.AddWithValue("@masterPasswordInput", masterPasswordHash);
+                cs.Open();
+                cmd.ExecuteNonQuery();
+                cs.Close();
+                return true;
+                
             }
         }
         public static bool CreateNewItem(string name, string username, string password)
