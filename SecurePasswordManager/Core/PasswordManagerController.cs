@@ -13,18 +13,15 @@ namespace SecurePasswordManager.Core
 {
     internal class PasswordManagerController
     {
-        private static string connectionString = @"Data Source=(LocalDB)\MSSQLLocalDB;AttachDbFilename=C:\Users\jacobsl\OneDrive - Hansen Technologies Limited\Drive\PBA\Courses\Software Sequrity\Exam Project\PasswordManagerProject\SecurePasswordManager\Database\PasswordVault.mdf;Integrated Security=True;Connect Timeout=30";
-        
+        private static string connectionString = @"Data Source=(LocalDB)\MSSQLLocalDB;AttachDbFilename=C:\Users\chaudrj\source\repos\Lisesoee\SecurePasswordManager\SecurePasswordManager\Database\PasswordVaultDB.mdf;Integrated Security=True;Connect Timeout=30";
+        private const int SALT_SIZE = 24; // size in bytes
+        private const int HASH_SIZE = 24; // size in bytes
+        private const int ITERATIONS = 100000; // number of pbkdf2 iterations
+        private static byte[] salt = new byte[SALT_SIZE] { 0x33, 0xBA, 0x00, 0x3C, 0x1F, 0x35, 0xEC, 0xC3, 0xBE, 0xA3, 0x78, 0x7C, 0xEF, 0x9B, 0xA2, 0xC6, 0x9B, 0xC3, 0x13, 0x39, 0x99, 0x95, 0xF5, 0x63 };
         
         public static byte[] CreateHash(string input)
         {
-            // Generate a salt
-            const int SALT_SIZE = 24; // size in bytes
-            const int HASH_SIZE = 24; // size in bytes
-            const int ITERATIONS = 100000; // number of pbkdf2 iterations
             RNGCryptoServiceProvider provider = new RNGCryptoServiceProvider();
-            byte[] salt = new byte[SALT_SIZE];
-            provider.GetBytes(salt);
 
             // Generate the hash
             Rfc2898DeriveBytes pbkdf2 = new Rfc2898DeriveBytes(input, salt, ITERATIONS);

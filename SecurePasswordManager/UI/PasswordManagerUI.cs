@@ -138,15 +138,15 @@ namespace SecurePasswordManager.UI
 
         private static void MainMenu()
         {
-            Console.WriteLine("Options:");
-            Console.WriteLine("1: Add new Item");
-            Console.WriteLine("2: Retrieve Vault Item");
-            Console.WriteLine("3: Exit menu");
-            Console.WriteLine("Please select an option: ");
-
             bool exit = false;
             while (exit == false)
             {
+                Console.WriteLine("Options:");
+                Console.WriteLine("1: Add new Item");
+                Console.WriteLine("2: Retrieve Vault Item");
+                Console.WriteLine("3: Exit menu");
+                Console.WriteLine("Please select an option: ");
+
                 switch (Console.ReadLine())
                 {
                     case "1":
