@@ -4,19 +4,15 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Security.Cryptography;
+using System.Data.SqlClient;
 
 namespace SecurePasswordManager.Core
 {
     internal class PasswordManagerController
     {
+        private static string connectionString = @"Data Source=(LocalDB)\MSSQLLocalDB;AttachDbFilename=C:\Users\jacobsl\OneDrive - Hansen Technologies Limited\Drive\PBA\Courses\Software Sequrity\Exam Project\PasswordManagerProject\SecurePasswordManager\Database\PasswordVault.mdf;Integrated Security=True;Connect Timeout=30";
         
-        internal static void CreateNewItem(string name, string username, string password)
-        {
-            throw new NotImplementedException();
-
-            string passwordHash = Convert.ToBase64String(PasswordManagerController.CreateHash(password));
-        }
-
+        
         public static byte[] CreateHash(string input)
         {
             // Generate a salt
@@ -29,6 +25,7 @@ namespace SecurePasswordManager.Core
 
             // Generate the hash
             Rfc2898DeriveBytes pbkdf2 = new Rfc2898DeriveBytes(input, salt, ITERATIONS);
+            
             return pbkdf2.GetBytes(HASH_SIZE);
         }
 
@@ -37,9 +34,50 @@ namespace SecurePasswordManager.Core
             throw new NotImplementedException();
         }
 
-        internal static void CreateNewUser(string userNameInput, string masterPasswordInput)
+        public static bool CreateNewUser(string userNameInput, string masterPasswordInput)
         {
-            throw new NotImplementedException();
+            string masterPasswordHash = Convert.ToBase64String(PasswordManagerController.CreateHash(masterPasswordInput));
+            using (SqlConnection cs = new SqlConnection(connectionString))
+            {
+                try
+                {
+                    SqlCommand cmd = new SqlCommand("INSERT INTO MasterPassword (MasterPassword, UserName) values (@masterPasswordInput,@usernameinput)", cs);
+                    cmd.Parameters.AddWithValue("@usernameinput", userNameInput);
+                    cmd.Parameters.AddWithValue("@masterPasswordInput", masterPasswordHash);
+                    cs.Open();
+                    cmd.ExecuteNonQuery();
+                    cs.Close();
+                    return true;
+                }
+                catch (Exception e)
+                {
+                    //throw new Exception("Master Password could not be created.");
+                    return false;
+                }
+            }
+        }
+        public static bool CreateNewItem(string name, string username, string password)
+        {
+            using (SqlConnection cs = new SqlConnection(connectionString))
+            {
+                try
+                {
+                    SqlCommand cmd = new SqlCommand("INSERT INTO VaultItem (Name, UserName, Password) values (@name,@username,@password)", cs);
+                    cmd.Parameters.AddWithValue("@name", name);
+                    cmd.Parameters.AddWithValue("@username", username);
+                    cmd.Parameters.AddWithValue("@password", password);
+                    cs.Open();
+                    cmd.ExecuteNonQuery();
+                    cs.Close();
+                    return true;
+                }
+                catch (Exception e)
+                {
+                    //throw new Exception("Vault Item could not be created.");
+                    return false;
+                }
+            }
+
         }
     }
 }

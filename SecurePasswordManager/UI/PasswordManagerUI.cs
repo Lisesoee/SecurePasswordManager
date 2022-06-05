@@ -64,17 +64,6 @@ namespace SecurePasswordManager.UI
 
         private static void LoginMenuOption_CreateNewUser()
         {
-            throw new NotImplementedException();
-        }
-
-        private static bool LoginMenuOption_Login()
-        {
-            return true; // for testing
-            throw new NotImplementedException();
-        }
-
-        private static void CreateNewUser()
-        {
             Console.WriteLine("Please input a user name:");
             string userNameInput = Console.ReadLine();
             Console.WriteLine("Please input a master password:");
@@ -87,7 +76,20 @@ namespace SecurePasswordManager.UI
                 throw new Exception("The two input passwords don't match!");
             }
 
-            PasswordManagerController.CreateNewUser(userNameInput, masterPasswordInput);
+            if (PasswordManagerController.CreateNewUser(userNameInput, masterPasswordInput))
+            {
+                Console.WriteLine("User was successfully created!");
+            }
+            else
+            {
+                Console.WriteLine("The user was not created. Please try again.");
+            }
+        }
+
+        private static bool LoginMenuOption_Login()
+        {
+            return true; // for testing
+            throw new NotImplementedException();
         }
                 
 
@@ -138,9 +140,15 @@ namespace SecurePasswordManager.UI
             Console.WriteLine("Please input a password: ");
             string password = Console.ReadLine();
 
-            PasswordManagerController.CreateNewItem(name, username, password);
+            if (PasswordManagerController.CreateNewItem(name, username, password))
+            {
+                Console.WriteLine("The item was created successfully!");
+            }
+            else
+            {
+                Console.WriteLine("The item could not be created.");
+            }          
             
-            Console.WriteLine("The item was created successfully!");
         }
         
     }
