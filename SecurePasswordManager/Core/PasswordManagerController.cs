@@ -8,6 +8,7 @@ using System.Data.SqlClient;
 using SecurePasswordManager.Classes;
 using System.Reflection;
 using System.Security;
+using System.IO;
 
 namespace SecurePasswordManager.Core
 {
@@ -18,7 +19,8 @@ namespace SecurePasswordManager.Core
         private const int HASH_SIZE = 24; // size in bytes
         private const int ITERATIONS = 100000; // number of pbkdf2 iterations
         private static byte[] salt = new byte[SALT_SIZE] { 0x33, 0xBA, 0x00, 0x3C, 0x1F, 0x35, 0xEC, 0xC3, 0xBE, 0xA3, 0x78, 0x7C, 0xEF, 0x9B, 0xA2, 0xC6, 0x9B, 0xC3, 0x13, 0x39, 0x99, 0x95, 0xF5, 0x63 };
-        
+        private static byte[] aes_key = new byte[] { 0xCB, 0xA6, 0x56, 0x20, 0xD8, 0x22, 0xCA, 0x26, 0xE9, 0x7B, 0xFE, 0x63, 0x62, 0xE1, 0x7C, 0xF2, 0x32, 0x38, 0x38, 0xD0, 0x06, 0x5F, 0x28, 0x8E, 0xA1, 0x87, 0x2C, 0x03, 0xC1, 0x90, 0x96, 0x0D };
+        private static byte[] IV_aes = new byte[16];
         public static byte[] CreateHash(string input)
         {
             RNGCryptoServiceProvider provider = new RNGCryptoServiceProvider();
@@ -54,13 +56,12 @@ namespace SecurePasswordManager.Core
             // todo: sanitize inputs
 
             // todo: encrypt data before storing it
-
             using (SqlConnection cs = new SqlConnection(connectionString))
             {
                 SqlCommand cmd = new SqlCommand("INSERT INTO VaultItem (Name, UserName, Password) values (@name,@username,@password)", cs);
                 cmd.Parameters.AddWithValue("@name", name);
                 cmd.Parameters.AddWithValue("@username", username);
-                cmd.Parameters.AddWithValue("@password", password);
+                cmd.Parameters.AddWithValue("@password", Convert.ToBase64String(Encrypt(password, aes_key, IV_aes)));
                 cs.Open();
                 cmd.ExecuteNonQuery();
                 cs.Close();
@@ -74,7 +75,6 @@ namespace SecurePasswordManager.Core
             // todo: sanitize input 
 
             // todo: decrypt item name before returning it (have a different key to decrypt name than to decrypt credentials)
-
 
             List<VaultItem> VaultItemList = new List<VaultItem>();
 
@@ -101,6 +101,11 @@ namespace SecurePasswordManager.Core
                     if (!object.Equals(sqlDataReader[prop.Name], DBNull.Value))
                     {
                         prop.SetValue(obj, sqlDataReader[prop.Name], null);
+                        if (prop.Name.Equals("Password"))
+                        {
+                            Console.WriteLine();
+                            prop.SetValue(obj, Decrypt(Convert.FromBase64String((String)sqlDataReader[prop.Name]), aes_key, IV_aes), null);
+                        }
                     }
                 }
                 list.Add(obj);
@@ -154,6 +159,56 @@ namespace SecurePasswordManager.Core
                 cs.Close();
             }
             return VaultItemList[0];            
+        }
+
+        static byte[] Encrypt(string plainText, byte[] Key, byte[] IV)
+        {
+            byte[] encrypted;
+            // Create a new AesManaged.    
+            using (AesManaged aes = new AesManaged())
+            {
+                // Create encryptor    
+                ICryptoTransform encryptor = aes.CreateEncryptor(Key, IV_aes);
+                // Create MemoryStream    
+                using (MemoryStream ms = new MemoryStream())
+                {
+                    // Create crypto stream using the CryptoStream class. This class is the key to encryption    
+                    // and encrypts and decrypts data from any given stream. In this case, we will pass a memory stream    
+                    // to encrypt    
+                    using (CryptoStream cs = new CryptoStream(ms, encryptor, CryptoStreamMode.Write))
+                    {
+                        // Create StreamWriter and write data to a stream    
+                        using (StreamWriter sw = new StreamWriter(cs))
+                            sw.Write(plainText);
+                        encrypted = ms.ToArray();
+                    }
+                }
+            }
+            // Return encrypted data    
+            return encrypted;
+        }
+
+        static string Decrypt(byte[] cipherText, byte[] Key, byte[] IV)
+        {
+            string plaintext = null;
+            // Create AesManaged    
+            using (AesManaged aes = new AesManaged())
+            {
+                // Create a decryptor    
+                ICryptoTransform decryptor = aes.CreateDecryptor(Key, IV);
+                // Create the streams used for decryption.    
+                using (MemoryStream ms = new MemoryStream(cipherText))
+                {
+                    // Create crypto stream    
+                    using (CryptoStream cs = new CryptoStream(ms, decryptor, CryptoStreamMode.Read))
+                    {
+                        // Read crypto stream    
+                        using (StreamReader reader = new StreamReader(cs))
+                            plaintext = reader.ReadToEnd();
+                    }
+                }
+            }
+            return plaintext;
         }
     }
 }
