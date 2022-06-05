@@ -80,7 +80,12 @@ namespace SecurePasswordManager.UI
                 Console.WriteLine("The two input passwords don't match! Returning to menu.. \n");
                 return;
             }
-
+            if (!PasswordValidator.VerifyPassword(masterPasswordInput))
+            {
+                Console.WriteLine("The password does not live up to the password requirements. Must be 8 characters long and ...");
+                return;
+            }
+            
             if (PasswordManagerController.CreateNewUser(userNameInput, masterPasswordInput))
             {
                 Console.WriteLine("User was successfully created!");
@@ -117,8 +122,6 @@ namespace SecurePasswordManager.UI
 
         private static bool LoginMenuOption_Login()
         {
-            //return true; // for testing purposes
-
             Console.WriteLine("\nPlease input user name:");
             string userNameInput = Console.ReadLine();
 
@@ -192,6 +195,8 @@ namespace SecurePasswordManager.UI
 
         private static void MenuOption_AddNewItem()
         {
+            // todo: support user by autogenrating a password for the new item instead of them having to input it
+
             Console.WriteLine("Please input a name: ");
             string name = Console.ReadLine();
             Console.WriteLine("Please input a username: ");
