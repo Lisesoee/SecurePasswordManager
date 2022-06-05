@@ -3,7 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using SecurePasswordManager.Classes;
 using SecurePasswordManager.Core;
+
 
 
 namespace SecurePasswordManager.UI
@@ -16,7 +18,7 @@ namespace SecurePasswordManager.UI
 
         public static void RunSecurePasswordManager()
         {
-            if (LoginMenu() == true)
+            if (LoginMenu())
             {
                 MainMenu();
             }
@@ -97,7 +99,7 @@ namespace SecurePasswordManager.UI
         {
             Console.WriteLine("Options:");
             Console.WriteLine("1: Add new Item");
-            Console.WriteLine("2: Retrieve existing Password");
+            Console.WriteLine("2: Retrieve Vault Item");
             Console.WriteLine("3: Exit menu");
             Console.WriteLine("Please select an option: ");
 
@@ -110,7 +112,7 @@ namespace SecurePasswordManager.UI
                         MenuOption_AddNewItem();
                         break;
                     case "2":
-                        MenuOption_RetrievePassword();
+                        MenuOption_RetrieveVaultItem();
                         break;
                     case "3":
                         exit = true;
@@ -119,15 +121,30 @@ namespace SecurePasswordManager.UI
             }
         }
 
-        private static void MenuOption_RetrievePassword()
+        private static void MenuOption_RetrieveVaultItem()
         {
-            // TODO: print list of available items
+            List<VaultItem> VaultItemList = new List<VaultItem>();
+
+            try
+            {
+                VaultItemList = PasswordManagerController.GetAllItems();
+            }
+            catch
+            {
+                Console.WriteLine("The existing items could not be retrieved from the vault.");
+            };
+            
+
+            foreach (VaultItem item in VaultItemList)
+            {
+                Console.WriteLine("Id: " + item.Id + ", Name: " + item.Name);
+            }
 
             Console.WriteLine("Which item would you like to retrieve the password for?: ");
-            string name = Console.ReadLine();
+            int idToRetrieve = int.Parse(Console.ReadLine());
 
-            PasswordManagerController.GetItem(name);
-            Console.WriteLine("..."); // todo: print item.toString
+            VaultItem vaultItem = PasswordManagerController.GetItem(idToRetrieve);
+            Console.WriteLine(vaultItem.ToString());
 
         }
 
